@@ -49,7 +49,9 @@ Mock screens: none found in `docs/design`. Screens needed: Trip page people sect
 - **Browser storage:** none beyond the session (F1).
 
 ## States & errors
+- **People section, heading and form copy:** the section heading is "People". The add-person field label is "Person name". The add button is "Add".
 - **People section, loading:** a loading indicator is shown while people are fetched. Copy: "Loading people…"
+- **People section, failed to load:** the list is replaced by a message and a "Try again" button; activating it fetches the people again (F3.AC15). Copy: "We couldn't load the people. Try again."
 - **People section, empty:** a short message and the add-person field. Copy: "No people yet. Add the people on this trip."
 - **People section, loaded:** one row per person, in the order added (F3.R6), each with a Remove action.
 - **Add person, name blank after trimming:** shown next to the field; no person is added (F3.R2). Copy: "Enter a name."
@@ -80,7 +82,7 @@ Mock screens: none found in `docs/design`. Screens needed: Trip page people sect
 - Double submit on add: the button is disabled while the request is in flight. If a second request gets through, the duplicate is still refused (F3.R4).
 - Remove a person who is the payer of an expense: refused (F3.R9).
 - Remove a person who is only in a suggested payment, not yet marked paid: allowed. Only expenses and payments the user has recorded count as "in use" (product.md › Key terms: Payment means a suggested payment marked as paid).
-- Remove a person in another tab after they were already removed: the removal finds no person and is treated as not found; the list is refreshed.
+- Remove a person in another tab after they were already removed: the removal finds no person and is treated as not found; no message is shown and the list is refreshed, so the person disappears (F3.AC16).
 - Remove, then add the same name again: allowed, since the person is no longer on the trip. The new person is added at the end of the list.
 - Cancel the remove dialog: nothing changes.
 - Trip with many people: no cap (F3.R5); the list still shows them in the order added.
@@ -100,6 +102,8 @@ Mock screens: none found in `docs/design`. Screens needed: Trip page people sect
 - **F3.AC12** Given a trip with any number of people, when another person is added, then the person is saved (no cap).
 - **F3.AC13** Given a logged-out visitor, or a logged-in user acting on a trip they do not own, when they call any people endpoint, then the request is refused and no people data is returned (F1.R10).
 - **F3.AC14** Given a person on a trip, when the user views the trip, then there is no action to change the person's name.
+- **F3.AC15** Given the people list cannot be loaded, when the trip page is shown, then the message "We couldn't load the people. Try again." and a "Try again" button are shown, and activating the button fetches the people again.
+- **F3.AC16** Given a person removed in another tab, when the user chooses Remove and confirms in this tab, then no message is shown, the person is not listed after the list refreshes, and no other person is changed.
 
 ## Dependencies
 - **Depends on:** F1 (login and the ownership check, F1.R10) and F2 (the trip and trip page, and the cascade that removes people with a trip, F2.R9). F1 and F2 must be built first.
@@ -120,6 +124,8 @@ Unit tests only, per project-rules.md. Logic is kept where it can be tested with
 - **F3.AC12** — unit test: the add-person service with a fake store adds a person when the trip already has many people.
 - **F3.AC13** — unit test: the access check refuses a request with no session and a request for a person on another owner's trip. Query-level scoping: code review.
 - **F3.AC14** — code review: no edit action for a person's name exists in the trip page or the people endpoints.
+- **F3.AC15** — unit test: the list service returns a failure result, not a partial list, when the fake store throws; the trip page's message and retry button are code review.
+- **F3.AC16** — unit test: the remove service with a fake store that has no such person returns the not-found result and writes nothing; no-message and list refresh are code review.
 - **Duplicate at the same time** (F3.R4, Edge cases) — code review: a duplicate is refused even when two requests arrive at the same time; how this is enforced is set in the plan. A unit test cannot prove it.
 - **Double submit on add** (Edge cases) — code review: the Add button is disabled while its request is in flight. This is UI behaviour; no unit test covers it.
 - **Cascade on trip delete** (F2.R9) — covered by F2; no new test here.
@@ -139,3 +145,4 @@ None.
 - 2026-11-19: Duplicate-name message [Name] → the existing person's name as stored, not the typed name (States & errors, AC5).
 - 2026-11-19: Database enforcement of the duplicate rule → Removed from the spec; the spec now requires only that a duplicate is refused under concurrent requests, and the plan sets how (Data & contract, Test plan).
 - 2026-11-19: Approve F3? → Yes. Status set to Approved.
+- 2026-11-19: Re-approval after revision. Changes: added the copy for the section heading ("People"), field label ("Person name") and button ("Add") (States & errors); added the failed-to-load state with "We couldn't load the people. Try again." and a "Try again" button (States & errors, F3.AC15); removing an already-removed person shows no message and refreshes the list (Edge cases, F3.AC16). Nothing else changed. Status set to Draft while edited, then Approved again on the user's approval. The plan at docs/plans/F3-people.md predates these changes and must be updated before building.
