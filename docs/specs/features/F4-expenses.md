@@ -70,6 +70,7 @@ Mock screens: none found in `docs/design`. Screens needed: Trip page expenses se
 ## States & errors
 Copy below is approved as written (2026-11-19). The meaning of each state is fixed by the requirements.
 - **Expenses section, loading:** a loading indicator is shown while expenses are fetched. Copy: "Loading expenses…"
+- **Expenses section, failed to load:** the section shows the failure copy and a "Try again" button, which fetches the expenses again. The rest of the trip page is unchanged. Copy: "We couldn't load the expenses. Try again." Button: "Try again". Same as F2 and F3 (F4.AC27).
 - **Expenses section, empty, trip has people:** Copy: "No expenses yet. Add the first one." Button: "Add expense".
 - **Expenses section, empty, trip has no people:** no Add expense button (F4.R15). Copy: "Add people to this trip before you add an expense."
 - **Expenses section, loaded:** rows as in F4.R8, newest first (F4.R7). Each row's button: "Delete".
@@ -153,6 +154,7 @@ Copy below is approved as written (2026-11-19). The meaning of each state is fix
 - **F4.AC24** Given an amount containing a comma (for example "1,000.00"), when the user adds the expense, then no expense is saved and the user sees "Use digits and a decimal point only. No commas." next to the amount field.
 - **F4.AC25** Given amounts "10", "10.5" and "10.50", when the user adds an expense with each, then all three are saved, as 1000, 1050 and 1050 cents.
 - **F4.AC26** Given an amount of ".5" or "10.", when the user adds the expense, then no expense is saved and the user sees "Enter an amount greater than zero." next to the amount field.
+- **F4.AC27** Given the expenses cannot be loaded, when the user views the trip page, then the expenses section shows "We couldn't load the expenses. Try again." and a "Try again" button, and the rest of the page is still shown. When the user chooses "Try again" and the list loads, then the expenses are listed as in F4.AC15.
 
 ## Dependencies
 - **Depends on:** F1 (login and the ownership check, F1.R10), F2 (the trip and trip page, and the cascade that removes expenses with a trip, F2.R9), F3 (the people who can be payer and participants, F3.R9 reads expenses from this feature). F1, F2 and F3 must be built first.
@@ -201,3 +203,5 @@ None.
 - 2026-11-19: Partial amounts (".5", "10.")? → Refused; a decimal point needs a digit on both sides (F4.R2, AC26, Edge cases).
 - 2026-11-19: Product.md edits? → None. Limits and rules are recorded in this spec's Decisions log only, as the user asked.
 - 2026-11-19: Approve F4? → Yes. Status set to Approved. Open questions cleared.
+- 2026-11-19: Plan review (sent back, one item): what does the expenses section show when it fails to load? → "We couldn't load the expenses. Try again." with a "Try again" button, same as F2 and F3. Added to States & errors and as F4.AC27. No other change to the spec. Recorded in the plan's open item; the plan needs re-running (`/plan-feature F4`) to map AC27.
+- 2026-11-19: Re-approval of F4 after the change above. Status remains Approved. The earlier approval (2026-11-19) covered the spec before this change; this one covers the spec with F4.AC27.
