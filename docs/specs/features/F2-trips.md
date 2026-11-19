@@ -56,10 +56,13 @@ The copy below is final as approved on 2026-11-19. Each state's meaning is fixed
 - **Trips list, loading:** a loading indicator is shown while trips are fetched. Copy: "Loading your trips…"
 - **Trips list, empty:** a short message and a Create trip button. Copy: "You have no trips yet." Button: "Create trip".
 - **Trips list, loaded:** rows as in F2.R7, newest first.
+- **Trips list, failed to load:** the list request failed. Copy: "We couldn't load your trips. Try again." Button: "Try again", which fetches the list again and shows the loading state while it does. No trips are shown with the message.
 - **Create trip, name blank after trimming:** shown next to the field; the trip is not created (F2.R2). Copy: "Enter a trip name."
 - **Create trip, name longer than 100 characters:** shown next to the field; the trip is not created (F2.R3). Copy: "Trip names can be up to 100 characters."
 - **Create trip, request failed:** the user is told the trip was not saved and can try again; the typed name is kept. Copy: "We couldn't save your trip. Try again."
 - **Trip page, not found or not yours:** the same not-found page for both cases (F2.R8). Heading: "Trip not found." Body: "We couldn't find that trip." Button: "Back to trips".
+- **Trip page, loading:** the trip is being fetched. Copy: "Loading trip…"
+- **Trip page, failed to load:** the trip request failed for a reason other than not-found (F2.R8). Copy: "We couldn't load this trip. Try again." Button: "Try again", which fetches the trip again and shows the loading state while it does.
 - **Delete dialog:** names the trip and states that its people and expenses will be removed (F2.R9). Title: "Delete [trip name]?" Body: "This removes the trip and all its people, expenses and payments. This can't be undone." Buttons: "Delete trip" and "Cancel".
 - **Delete, request failed:** the user is told the trip was not deleted; the trip stays on the list. Copy: "We couldn't delete this trip. Try again."
 - **Loading on submit:** the Create and Delete buttons are disabled while their request is in flight, so a normal double click sends one request. Labels while in flight: "Saving…" (Create) and "Deleting…" (Delete).
@@ -84,6 +87,7 @@ The copy below is final as approved on 2026-11-19. Each state's meaning is fixed
 - Deleting a trip in another tab that is still open here: the next action on it shows not-found.
 - Trip with no people or expenses yet: deletes the same way (F2.R9).
 - Delete cancelled: nothing changes.
+- Trips list or trip page fails to load, then Try again succeeds: the content is shown and the error message is removed (F2.AC15, F2.AC16).
 
 ## Acceptance criteria
 - **F2.AC1** Given a logged-in user, when they submit a trip name of 1–100 characters that is not blank, then a trip is created, owned by them, and they are taken to its trip page.
@@ -100,6 +104,8 @@ The copy below is final as approved on 2026-11-19. Each state's meaning is fixed
 - **F2.AC12** Given a logged-out visitor, when they call any trip endpoint added in F2, then the request is refused and no trip data is returned (F1.R10).
 - **F2.AC13** Given a trip owned by user A, when user B calls any trip endpoint for it, then the request is refused and no trip data is returned (F1.R10).
 - **F2.AC14** Given a user who logs in with no trip page requested, when login succeeds, then they land on the trips list.
+- **F2.AC15** Given a logged-in user, when the trips list cannot be loaded, then "We couldn't load your trips. Try again." and a Try again button are shown; when the user chooses Try again and the request succeeds, then their trips are shown in place of the message.
+- **F2.AC16** Given a logged-in user, when the trip page is waiting for its trip, then "Loading trip…" is shown; when the trip request fails for a reason other than not-found, then "We couldn't load this trip. Try again." and a Try again button are shown, and choosing Try again fetches the trip again.
 
 ## Dependencies
 - **Depends on:** F1 (login, session, and the ownership check in F1.R10). F1 must be built first.
@@ -118,6 +124,7 @@ Unit tests only, per project-rules.md. Logic is kept where it can be tested with
 - **F2.AC10** — code review: the cascade removes people, expenses and payments in the database. A unit test can only check that the delete service calls the store's cascade delete once.
 - **F2.AC12, F2.AC13** — code review: every trip query and mutation scopes by the session user's id (the database query itself cannot be proven by a unit test). Unit test: the access check refuses a request with no session and a request for another owner's trip id.
 - **F2.AC14** — unit test: the post-login redirect target is the trips list when no return target is set.
+- **F2.AC15, F2.AC16** — unit test: the view-model functions in `domain/` pick the loading, failed and loaded states, and the failure and loading copy matches the approved text. The Try again re-fetch: code review (UI behaviour).
 - **Double submit on create** (edge case) — code review: the Create button is disabled while its request is in flight (States & errors). This is UI behaviour; no unit test covers it.
 
 ## Open questions
@@ -141,3 +148,8 @@ None.
 - 2026-11-19: F1 landing-page dependency line removed from F2 Dependencies; F1 is already approved and sets the trips list as the landing page.
 - 2026-11-19: Approve the draft copy (OQ1)? → Yes, the copy in States & errors is approved as written. Open questions cleared.
 - 2026-11-19: Approve F2? → Yes. Status set to Approved.
+- 2026-11-19: Trips list fails to load (plan question, sent back)? → Show "We couldn't load your trips. Try again." with a "Try again" button that fetches the list again (States & errors, F2.AC15).
+- 2026-11-19: Trip page while loading? → Show "Loading trip…" (States & errors, F2.AC16).
+- 2026-11-19: Trip page fails to load for a reason other than not-found? → Show "We couldn't load this trip. Try again." with a "Try again" button that fetches the trip again (States & errors, F2.AC16).
+- 2026-11-19: Status set back to Draft for re-approval after these additions. Substance changed in an Approved spec, so `docs/plans/F2-trips.md` may be out of date (its Sent back to spec items are answered by these entries).
+- 2026-11-19: Re-approve F2 as written (F2.AC15 and F2.AC16 added, with their copy in States & errors)? → Yes. Status set to Approved again.
