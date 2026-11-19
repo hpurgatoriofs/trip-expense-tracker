@@ -30,7 +30,7 @@ Screen names: trip page (F2), Balances section (this feature). No mock screens a
 - **F5.R1** Each person on a trip has exactly one balance. The balance = what the person paid − their shares of all expenses + payments they made − payments they received (product.md › R4).
 - **F5.R2** A person's share of an expense is the share calculated by F4.R5 for that expense. Balances use the same shares that F4 defines; the calculation is not repeated with different rules.
 - **F5.R3** Balances are whole numbers of cents. No rounding is applied when balances are calculated. Any rounding happens once, in the share calculation (F4.R5).
-- **F5.R4** A positive balance is shown as "[Name] is owed [amount]". A negative balance is shown as "[Name] owes [amount]", with the amount shown as a positive number (product.md › Key terms). Amounts are shown with exactly two digits after the decimal point, with no thousands separators and no currency symbol (e.g. "1250.00"). This matches how amounts are typed (F4.R2) and listed (F4.R8). Product.md › Assumptions gives one currency.
+- **F5.R4** A positive balance is shown as "[Name] is owed [amount]". A negative balance is shown as "[Name] owes [amount]", with the amount shown as a positive number (product.md › Key terms). Amounts are shown with exactly two digits after the decimal point, with thousands separators between groups of three digits, and no currency symbol (e.g. "1,250.00"). The format is the same as the money formatter in the approved F4 plan (`formatCents`, F4 plan T1). Amounts are typed with digits and one decimal point only, with no separators (F4.R2). Product.md › Assumptions gives one currency.
 - **F5.R5** A balance of exactly zero is shown as "[Name] is settled" (lowercase "settled"), with no amount.
 - **F5.R6** The balances of all people on a trip add up to exactly zero (product.md › R5). This is an invariant of the calculation, checked by tests (Test plan), not a user-facing check.
 - **F5.R7** The Balances section lists every person on the trip, in the order they were added, oldest first (F3.R6). Each row shows only the person's name and their balance (F5.R4 and F5.R5).
@@ -70,13 +70,13 @@ Copy below is approved as written (2026-11-19). The meaning of each state is fix
 - Amounts that do not divide evenly: leftover cents are already in each person's share (F4.R5), so the balances still add up to zero (AC3).
 - Deleting an expense: the balances change the next time they are requested (F5.R9). A deleted expense leaves no balance behind.
 - A person added after expenses exist: they have no shares or payments, so they show as "is settled" until they appear in an expense (F5.R8).
-- A large balance: the amount is the sum of whole cents, so it is never rounded. It is shown with no thousands separators, for example "1250.00" (F5.R4).
+- A large balance: the amount is the sum of whole cents, so it is never rounded. It is shown with thousands separators, for example "1,250.00" (F5.R4).
 - Two people with the same balance: both are shown, in the order added (F5.R7).
 
 ## Acceptance criteria
-- **F5.AC1** Given a trip with Sam, Alex and Jo, where Sam paid 90.00 for dinner and Alex paid 30.00 for a taxi, both shared by all three, when the balances are shown, then Sam is owed 50.00, Alex owes 10.00 and Jo owes 40.00 (product.md › Worked example 1; F5.R1, F5.R4).
+- **F5.AC1** Given a trip with Sam, Alex and Jo, where Sam paid 90.00 for dinner and Alex paid 30.00 for a taxi, both shared by all three, when the balances are shown, then the rows read "Sam is owed 50.00", "Alex owes 10.00" and "Jo owes 40.00", with two decimal places and thousands separators where needed (product.md › Worked example 1; F5.R1, F5.R4).
 - **F5.AC2** Given the trip in F5.AC1, when the balances are shown, then the three amounts add up to exactly zero (F5.R6).
-- **F5.AC3** Given an expense of 10.00 paid by Sam and shared by Sam, Alex and Jo, when the balances are shown, then Sam is owed 6.66, Alex owes 3.33 and Jo owes 3.33, and the three add up to zero (product.md › Worked example 2; F4.R5; F5.R3, F5.R6).
+- **F5.AC3** Given an expense of 10.00 paid by Sam and shared by Sam, Alex and Jo, when the balances are shown, then the rows read "Sam is owed 6.66", "Alex owes 3.33" and "Jo owes 3.33", with two decimal places and thousands separators where needed, and the three add up to zero (product.md › Worked example 2; F4.R5; F5.R3, F5.R4, F5.R6).
 - **F5.AC4** Given an expense of 30.00 paid by Sam and shared only by Alex and Jo, when the balances are shown, then Sam is owed 30.00, Alex owes 15.00 and Jo owes 15.00 (F4.R4; F5.R1).
 - **F5.AC5** Given Sam paid 20.00 shared by Sam and Alex, and Jo is on the trip with no expenses, when the balances are shown, then Sam is owed 10.00, Alex owes 10.00 and Jo is shown as "is settled" (F5.R5, F5.R8).
 - **F5.AC6** Given a trip with people and no expenses, when the balances are shown, then every person is shown as "is settled" (F5.R5, F5.R8).
@@ -104,7 +104,7 @@ Unit tests only (project rules). Each test uses the worked examples in product.m
 - Calculation after an expense is removed from the input list → F5.AC9.
 - Empty trip (no people) and trip with people but no expenses → F5.AC6, F5.AC10.
 - Sign-to-words mapping: positive → "is owed", negative → "owes", zero → "is settled" → F5.R4, F5.R5.
-- Amount formatting: two decimal places, no thousands separators (e.g. 1250.00) → F5.R4.
+- Amount formatting: two decimal places, with thousands separators (e.g. 1,250.00) → F5.R4.
 - Payment input: with no payments, the payments term is zero; with a fake payment of 40.00 from Jo to Sam, the balances in worked example 3 result → F5.R12, F5.AC8.
 - Access check on the balances request: refuses a request with no session, and refuses a request for another owner's trip (returns the same response as a missing trip) → F5.AC11, F5.R11.
 - Query scoping to the logged-in owner (every balance query reads only that owner's trips and expenses) → F5.AC11, by code review. The check needs the database to prove, so a unit test cannot show it.
@@ -124,3 +124,6 @@ None.
 - 2026-11-19: F5.AC8 (payment case) → Not deferred to F6. The calculation takes payments as an input, so AC8 is a unit test now with a fake payment of 40.00 from Jo to Sam (F5.R12, Test plan).
 - 2026-11-19: F5.AC11 (ownership) → Matches F2–F4: unit tests for the access check (no session; another owner's trip), and code review for the query scoping (F5.AC11, Test plan).
 - 2026-11-19: Approve F5? → Yes. Status set to Approved. Open questions cleared.
+- 2026-11-19: Amount format (revised; supersedes the "Thousands separators in balance amounts?" entry above) → Amounts are shown WITH thousands separators everywhere, e.g. "1,250.00", matching `formatCents` in the approved F4 plan (T1). Input stays digits and one decimal point only (F4.R2). Changed: F5.R4, F5.AC1, F5.AC3, Edge cases (large balance). The Test plan line "Amount formatting: two decimal places, no thousands separators (e.g. 1250.00)" was not in the requested changes and still says no separators; it needs the same fix before the plan is rebuilt.
+- 2026-11-19: Re-approval after the amount-format change above → Approved by the user. Status stays Approved; the date is 2026-11-19. Docs/plans/F5-balances.md was sent back for the amount format and must be updated to match before build.
+- 2026-11-19: Test plan wording aligned with F5.R4 → The Test plan line "Amount formatting: two decimal places, no thousands separators (e.g. 1250.00)" is now "two decimal places, with thousands separators (e.g. 1,250.00)". This is a wording fix only; it changes no requirement or AC, so Status stays Approved. The plan is unaffected, since its amount tests already use the separator form (F5-balances plan T1).
