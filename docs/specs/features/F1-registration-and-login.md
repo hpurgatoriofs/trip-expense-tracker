@@ -31,7 +31,7 @@ Mock screens: none found in `docs/design`. Screens needed: Register, Log in, pla
 - **F1.R5** Login takes an email and a password. Correct credentials start a session.
 - **F1.R6** A failed login (unknown email or wrong password) shows the same message in both cases, and starts no session. The message never says whether the email exists.
 - **F1.R7** Logout ends the current session.
-- **F1.R8** The session ends when the user logs out or closes the browser. It is not kept after the browser closes.
+- **F1.R8** The session ends when the user logs out or closes the browser. It is not kept after the browser closes. A session also ends 14 days after the user logged in, even if the browser stays open. After that the user must log in again.
 - **F1.R9** A logged-out request to a protected page is sent to the login page. After a successful login, the user is sent back to the page they asked for. The return target must be a path inside this app; any other value is ignored.
 - **F1.R10** Every trip endpoint requires a logged-in user and checks that the trip belongs to that user. A request that fails either check is refused, and the response reveals nothing about another user's trip.
 - **F1.R11** Login is by email and password only. There is no email verification and no password reset (product.md › Assumptions). There is no lockout after failed logins.
@@ -89,6 +89,7 @@ Copy below was drafted by Claude and approved by the user as written (decided 20
 - **F1.AC11** Given a logged-in user, when they call any trip endpoint for a trip they do not own, or with no session, then the request is refused and no trip data is returned.
 - **F1.AC12** Given any registration or login, when the request is processed, then the password is not written to logs or responses.
 - **F1.AC13** Given an email with bad format, or with capital letters, when a user registers, then a bad format is refused, and capitals are stored in lowercase.
+- **F1.AC14** Given a successful login, when 14 days have passed since that login with the browser still open, then the session is refused and the user's next request to a protected page is redirected to login. The cookie itself still has no expiry date (F1.AC8).
 
 ## Dependencies
 - **Build order:** step 1. F2–F6 depend on this feature's login and ownership check (F1.R10). The landing page after login becomes the trips list in F2.
@@ -106,6 +107,7 @@ Unit tests only, per project-rules.md. Logic is kept where it can be tested with
 - **F1.AC11** — code review: ownership is checked in each trip query (the database query itself cannot be proven by a unit test).
 - **F1.AC12** — unit test: the hashing and the logging wrapper never receive the plain password in the record they write; plus code review of log calls.
 - **F1.AC13** — unit test: the email validator rejects a malformed address, and the normaliser lowercases a mixed-case one.
+- **F1.AC14** — unit test: the access check, given a session whose login time is more than 14 days before a passed-in current time, refuses it; a session 13 days old is accepted.
 
 ## Open questions
 None. OQ5 (copy) and OQ8 (limit counting) are resolved; see the Decisions log.
@@ -127,3 +129,6 @@ None. OQ5 (copy) and OQ8 (limit counting) are resolved; see the Decisions log.
 - 2026-11-19: Approval → User approved F1 (status set to Approved).
 - 2026-11-19: OQ5 (copy) → User approved the drafted messages in States & errors as written. Claude reviewed them and kept them unchanged.
 - 2026-11-19: OQ8 (72 limit) → 72 characters, counted as characters (F1.R2, Edge cases). How passwords are hashed is a plan decision, not part of this spec.
+- 2026-11-19: Session length while the browser stays open? (raised by the plan) → A session also ends 14 days after login, even if the browser stays open. The user must log in again after that. Added to F1.R8 and F1.AC14; test plan line added. Other sections unchanged.
+- 2026-11-19: Status reset to Draft because the substance of an Approved spec changed (F1.R8, F1.AC14). The plan in `docs/plans/F1-registration-and-login.md` may be out of date and needs a check before build. Re-approval is pending.
+- 2026-11-19: Approval → User re-approved F1 with the 14-day session limit (F1.R8, F1.AC14). Status set to Approved.
