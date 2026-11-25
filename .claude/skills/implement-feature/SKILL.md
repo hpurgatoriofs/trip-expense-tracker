@@ -1,7 +1,7 @@
 ---
 name: implement-feature
 description: Supervise the build of ONE task of an approved Trip Expense Tracker feature (F<N>). Picks the next unfinished plan task, hands it to the developer agent, checks the result with tests and file checks, and commits only on the user's yes. Use when the user runs /implement-feature F<N> or asks to build a feature by its ID.
-argument-hint: F<N> (e.g. F1)
+argument-hint: "F<N> or F<N>.T<k> (e.g. F1 or F1.T15)"
 model: haiku
 ---
 
@@ -24,8 +24,11 @@ Rules: never edit specs, plans or the developer agent from this skill. The one e
 
 - Read the plan's tasks in order. Each heading looks like `### F<N>.T<k> — <title>`.
 - A task is **done** if `git log --format=%s` has a subject starting `F<N>.T<k>:`. Check the whole log.
-- The **next task** is the first one that is not done. If none is left, say "F<N> complete" and stop.
-- Read its `Depends on:` line. If any dependency is not done, stop and say which one.
+- If no task is left undone, say "F<N> complete" and stop.
+- If the argument is a task ID (`F<N>.T<k>`, for example `F1.T15`), that task is the target. If it is already done, say so and stop.
+- Otherwise the **next task** is the first task in plan order that is not done and whose `Depends on:` tasks are all done. Say which earlier undone tasks were skipped because they are waiting on dependencies, and what each is waiting on.
+- If tasks remain but none has all its dependencies done, stop and list each remaining task with its missing dependencies.
+- A task ID argument is refused if any of its `Depends on:` tasks is not done. Stop and list the missing ones.
 
 ## 3. Build the task message
 
