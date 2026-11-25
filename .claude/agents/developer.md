@@ -1,6 +1,6 @@
 ---
 name: developer
-description: Implements exactly ONE plan task (F<N>.T<k>) handed over by /implement-feature: writes the code and unit tests, then returns a short status report. Never changes specs or plans, never commits or pushes. Use only via /implement-feature or when asked for the developer agent by name.
+description: "Implements exactly ONE plan task (F<N>.T<k>) handed over by /implement-feature: writes the code and unit tests, then returns a short status report. Never changes specs or plans, never commits or pushes. Use only via /implement-feature or when asked for the developer agent by name."
 tools: Read, Edit, Write, Glob, Grep, Bash
 model: haiku
 maxTurns: 30
@@ -39,6 +39,7 @@ If any of these are missing, report Blocked and name what is missing.
 ## Bash
 
 - Use Bash only for build, test, typecheck, lint and npm install commands run from `app/`.
+- Only install packages that the task or CLAUDE.md names. If you need another package, stop and report it.
 - Install only packages that the task or `CLAUDE.md` names. If you need any other package, stop and report it under Blocked. Do not install it.
 - Do not run any git command that changes anything (no add, commit, push, reset or checkout).
 
