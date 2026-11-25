@@ -29,3 +29,6 @@ app/data/
 *.db-journal
 *.db-wal
 *.db-shm
+
+# Personal Claude instructions for this machine
+CLAUDE.local.md
