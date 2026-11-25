@@ -23,6 +23,9 @@ export function sessionOptions(config: AppConfig): SessionOptions {
       sameSite: "lax",
       path: "/",
       secure: config.isProduction,
+      // iron-session sets maxAge = ttl - 60 when the key is absent, which would give the cookie a
+      // 14-day max-age. The key must be present to stop that default; undefined writes no Max-Age.
+      maxAge: undefined,
     },
   };
 }

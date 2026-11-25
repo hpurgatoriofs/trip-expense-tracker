@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { sessionOptions } from "../../src/auth/session-options";
+import { getIronSession } from "iron-session";
+import { sessionOptions, type SessionData } from "../../src/auth/session-options";
 import { SESSION_MAX_AGE_SECONDS } from "../../src/domain/session-age";
 import type { AppConfig } from "../../src/lib/config";
 
@@ -11,17 +12,33 @@ const devConfig: AppConfig = {
 
 const prodConfig: AppConfig = { ...devConfig, isProduction: true };
 
-describe("sessionOptions", () => {
-  it("F1.AC8 cookie options have no expires and no maxAge", () => {
-    const options = sessionOptions(devConfig);
-    const cookie = options.cookieOptions ?? {};
+// A fake cookie store: records every cookie iron-session writes, with the options it passes.
+function fakeCookieStore() {
+  const written: { name: string; value: string; options: Record<string, unknown> }[] = [];
+  return {
+    written,
+    get: () => undefined,
+    set: (name: string, value: string, options?: Record<string, unknown>) => {
+      written.push({ name, value, options: options ?? {} });
+    },
+  };
+}
 
-    expect("expires" in cookie).toBe(false);
-    expect("maxAge" in cookie).toBe(false);
-    expect(options.cookieOptions?.expires).toBeUndefined();
-    expect(options.cookieOptions?.maxAge).toBeUndefined();
-    expect(sessionOptions(prodConfig).cookieOptions).not.toHaveProperty("maxAge");
-    expect(sessionOptions(prodConfig).cookieOptions).not.toHaveProperty("expires");
+describe("sessionOptions", () => {
+  it("F1.AC8 saving a session writes a cookie with no Max-Age and no Expires", async () => {
+    for (const config of [devConfig, prodConfig]) {
+      const store = fakeCookieStore();
+      const session = await getIronSession<SessionData>(store, sessionOptions(config));
+      session.userId = "user-1";
+      session.loggedInAt = new Date().toISOString();
+      await session.save();
+
+      expect(store.written).toHaveLength(1);
+      const { options } = store.written[0];
+      // undefined means the cookie serializer writes no Max-Age or Expires attribute.
+      expect(options.maxAge).toBeUndefined();
+      expect(options.expires).toBeUndefined();
+    }
   });
 
   it("F1.AC8 cookie is httpOnly", () => {
