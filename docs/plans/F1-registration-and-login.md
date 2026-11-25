@@ -263,3 +263,4 @@ None.
 - 2026-11-19: Approval → User approved the F1 plan (status set to Approved).
 - 2026-11-25: F1.T1 scaffold uses Next.js 16.4.6 (latest stable at scaffold time) → it decides whether the gate file is `proxy.ts` or `middleware.ts`; check `node_modules/next/dist/docs` at T17.
 - 2026-11-25: F1.T1 changes `@types/node` from ^20 to ^22 → vitest 5.1.1 requires `@types/node` ^22 or >=24, and ^22 matches the Node 22 LTS requirement in CLAUDE.md.
+- 2026-11-25: F1.T6 createArgon2Hasher() returns Promise<PasswordHasher> (the dummy hash needs async hash()) → T13–T18 must await it once at startup and reuse the hasher.
