@@ -17,3 +17,18 @@ docs/activities-outputs/session-logs/.hook-errors.log
 *.suo
 .DS_Store
 Thumbs.db
+
+# App build output and local data (app/)
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+app/data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Personal Claude instructions for this machine
+CLAUDE.local.md

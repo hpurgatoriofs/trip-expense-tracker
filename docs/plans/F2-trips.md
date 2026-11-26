@@ -205,3 +205,4 @@ None. Both items were answered by the spec re-approval on 2026-11-19 (F2.AC15, F
 - 2026-11-19: List and trip-page states are chosen in `domain/trip-view.ts` (`listState`, `tripPageState`), not in the page → CLAUDE.md says UI decisions that acceptance criteria check live in view-model functions, so F2.AC15 and F2.AC16 can be unit-tested.
 - 2026-11-19: Try again re-fetch is UI behaviour and is covered by code review, the same as the double-submit rule → it has no unit test (Test plan, F2.T11, F2.T13).
 - 2026-11-19: Not-found on the trip page stays its own state, not a failure → F2.AC8 and F2.AC16 both say so, and a 404 must show the not-found page, never the "couldn't load" message.
+- 2026-11-26: The F1.AC9 test assertion that `/api/trips` is protected was changed to `false` → the planned gate change for F2.AC12 (2026-11-19 entry). Each trip service calls `requireUser`, so logged-out calls still get `401`. Approved by the user.
