@@ -3,8 +3,9 @@
 
 const PUBLIC_PAGES = new Set<string>(["/login", "/register"]);
 
-// Route handlers under /api/auth/* return 401 themselves, so the gate skips them.
-const PUBLIC_API_PREFIX = "/api/auth/";
+// Route handlers under /api/* return 401 JSON themselves (F2.AC12), so the gate skips them
+// instead of redirecting an API call to /login.
+const API_PREFIX = "/api/";
 
 // Next.js build output for static files and the image optimiser.
 const STATIC_ASSET_PREFIXES = ["/_next/static/", "/_next/image"];
@@ -13,7 +14,7 @@ export function isProtectedPath(pathname: string): boolean {
   if (PUBLIC_PAGES.has(pathname)) {
     return false;
   }
-  if (pathname === "/api/auth" || pathname.startsWith(PUBLIC_API_PREFIX)) {
+  if (pathname === "/api" || pathname.startsWith(API_PREFIX)) {
     return false;
   }
   for (const prefix of STATIC_ASSET_PREFIXES) {

@@ -48,6 +48,10 @@ describe("safeReturnTarget", () => {
     expect(safeReturnTarget(tooLong)).toBe("/trips");
   });
 
+  it("F2.AC14 a login with no return target lands on the trips list", () => {
+    expect(safeReturnTarget(undefined)).toBe("/trips");
+  });
+
   it("F1.AC9 keeps a path of exactly 2048 characters", () => {
     const maxLength = "/" + "a".repeat(2047);
     expect(safeReturnTarget(maxLength)).toBe(maxLength);

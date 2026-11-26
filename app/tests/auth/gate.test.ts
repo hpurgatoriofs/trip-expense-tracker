@@ -32,6 +32,20 @@ describe("protected-path rule", () => {
   it("F1.AC9 paths that only look like public pages are still protected", () => {
     expect(isProtectedPath("/loginx")).toBe(true);
     expect(isProtectedPath("/registered-trips")).toBe(true);
-    expect(isProtectedPath("/api/trips")).toBe(true);
+    expect(isProtectedPath("/api/trips")).toBe(false);
+  });
+
+  it("F2.AC12 trip API paths are left to the handler", () => {
+    expect(isProtectedPath("/api/trips")).toBe(false);
+    expect(isProtectedPath("/api/trips/abc123")).toBe(false);
+    expect(isProtectedPath("/api/trips/abc123/expenses")).toBe(false);
+  });
+
+  it("F2.AC12 page paths are still protected", () => {
+    expect(isProtectedPath("/")).toBe(true);
+    expect(isProtectedPath("/trips")).toBe(true);
+    expect(isProtectedPath("/trips/abc123")).toBe(true);
+    expect(isProtectedPath("/apis")).toBe(true);
+    expect(isProtectedPath("/api-docs")).toBe(true);
   });
 });
