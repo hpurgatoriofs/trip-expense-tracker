@@ -8,6 +8,13 @@
       "when": 1795594174812,
       "tag": "0000_sweet_oracle",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1795660310415,
+      "tag": "0001_magenta_chat",
+      "breakpoints": true
     }
   ]
 }
